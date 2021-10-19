@@ -1,0 +1,75 @@
+buildscript {
+    ext {
+        dependencyManagementPluginVersion = '1.0.11.RELEASE'
+        springBootVersion = '2.5.5'
+    }
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://maven.springframework.org/release"
+        }
+        maven {
+            url "https://maven.restlet.com"
+        }
+    }
+    dependencies {
+        classpath("io.spring.gradle:dependency-management-plugin:${dependencyManagementPluginVersion}")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+//
+//plugins {
+//    id "org.springframework.boot" version "2.5.5"
+//    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+//}
+//
+
+
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'org.springframework.boot'
+
+
+allprojects {
+
+    group = 'com.ktviv'
+    version = '0.0.1-SNAPSHOT'
+
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://maven.springframework.org/release"
+        }
+        maven {
+            url "https://maven.restlet.com"
+        }
+
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+}
+
+subprojects {
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    dependencyManagement {
+        imports {
+            mavenBom 'org.springframework.boot:spring-boot-dependencies:2.5.5'
+        }
+    }
+}

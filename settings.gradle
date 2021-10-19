@@ -1,0 +1,5 @@
+rootProject.name = 'pointpoker'
+include 'pointpoker-app'
+include 'pointpoker-domain'
+include 'pointpoker-infra'
+
