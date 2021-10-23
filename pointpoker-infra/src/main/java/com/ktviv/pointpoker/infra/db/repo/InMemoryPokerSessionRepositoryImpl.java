@@ -30,4 +30,10 @@ public class InMemoryPokerSessionRepositoryImpl implements PokerSessionRepositor
 
         pokerSessions.put(pokerSession.getSessionId(), pokerSession);
     }
+
+    @Override
+    public PokerSession deletePokerSession(String sessionId) {
+
+        return pokerSessions.remove(sessionId);
+    }
 }

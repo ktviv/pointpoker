@@ -3,15 +3,15 @@ package com.ktviv.pointpoker.domain.events;
 import lombok.ToString;
 
 @ToString
-public class UserVotedEvent extends PokerEvent{
+public class UserVotedEvent extends PokerEvent {
 
-    private static final String TYPE = "user-voted";
+    public static final String TYPE = "user-voted";
     private String displayName;
     private float storyPoint;
 
 
-    public UserVotedEvent(String sessionId, String userId, float storyPoint, String displayName, long timestamp) {
-        super(sessionId, userId, timestamp);
+    public UserVotedEvent(Object source, String sessionId, String userId, float storyPoint, String displayName, long timestamp) {
+        super(source, sessionId, userId, timestamp);
         this.storyPoint = storyPoint;
         this.displayName = displayName;
     }

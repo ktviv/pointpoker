@@ -11,4 +11,6 @@ public interface PokerSessionRepository {
     Optional<PokerSession> getPokerSession(String sessionId);
 
     void updatePokerSession(PokerSession pokerSession);
+
+    PokerSession deletePokerSession(String sessionId);
 }

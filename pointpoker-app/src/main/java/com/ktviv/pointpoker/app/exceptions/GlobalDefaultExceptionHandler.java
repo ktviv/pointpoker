@@ -35,5 +35,4 @@ public class GlobalDefaultExceptionHandler {
 
         return new ResponseEntity<>("{\"errors\":[{\"msg\":\"" + e.getErrorType() + "\"}]}", HttpStatus.FORBIDDEN);
     }
-
 }

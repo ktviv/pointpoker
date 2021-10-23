@@ -1,20 +1,23 @@
-package com.ktviv.pointpoker.domain.broker;
-
-import com.ktviv.pointpoker.domain.events.PokerEvent;
+package com.ktviv.pointpoker.domain.events;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class EventQueueBlock {
+public class EventQueue {
 
     private final BlockingQueue<PokerEvent> pokerEventQueue;
     private final AtomicBoolean active;
 
-    public EventQueueBlock() {
+    public EventQueue() {
+
+        this(false);
+    }
+
+    public EventQueue(boolean activated) {
 
         this.pokerEventQueue = new PriorityBlockingQueue<>();
-        this.active = new AtomicBoolean(false);
+        this.active = new AtomicBoolean(activated);
     }
 
     public void addEvent(PokerEvent pokerEvent) {
@@ -30,6 +33,12 @@ public class EventQueueBlock {
     public void clearEvents() {
 
         this.pokerEventQueue.clear();
+    }
+
+    public void clearAll() {
+
+        this.clearEvents();
+        this.disable();
     }
 
     public boolean isActive() {

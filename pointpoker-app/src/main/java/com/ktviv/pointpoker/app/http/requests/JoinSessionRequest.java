@@ -7,5 +7,4 @@ import lombok.Data;
 public class JoinSessionRequest {
 
     @JsonProperty private String userId;
-
 }

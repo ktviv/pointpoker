@@ -5,10 +5,10 @@ import lombok.ToString;
 @ToString
 public class VoteResetEvent extends PokerEvent {
 
-    private static final String TYPE = "vote-reset";
+    public static final String TYPE = "vote-reset";
 
-    public VoteResetEvent(String sessionId, String userId, long timestamp) {
-        super(sessionId, userId, timestamp);
+    public VoteResetEvent(Object source, String sessionId, String userId, long timestamp) {
+        super(source, sessionId, userId, timestamp);
     }
 
     @Override

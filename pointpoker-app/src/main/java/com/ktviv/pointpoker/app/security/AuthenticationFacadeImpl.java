@@ -12,5 +12,4 @@ public class AuthenticationFacadeImpl implements AuthenticationFacade {
 
         return SecurityContextHolder.getContext().getAuthentication();
     }
-
 }

@@ -5,14 +5,9 @@ import com.ktviv.pointpoker.app.http.requests.VoteRequest;
 import com.ktviv.pointpoker.app.http.responses.CreateSessionResponse;
 import com.ktviv.pointpoker.app.security.AuthenticationFacade;
 import com.ktviv.pointpoker.app.utils.ApplicationUserMapper;
-import com.ktviv.pointpoker.app.utils.UserVoteResponseMapper;
-import com.ktviv.pointpoker.domain.broker.EventQueueBlock;
 import com.ktviv.pointpoker.domain.entity.ApplicationUser;
 import com.ktviv.pointpoker.domain.entity.Participant;
 import com.ktviv.pointpoker.domain.entity.SessionUser;
-import com.ktviv.pointpoker.domain.events.PokerEvent;
-import com.ktviv.pointpoker.domain.events.UserVotedEvent;
-import com.ktviv.pointpoker.domain.events.VoteResetEvent;
 import com.ktviv.pointpoker.domain.exception.PokerSessionNotFoundException;
 import com.ktviv.pointpoker.domain.exception.UnAssociatedParticipantException;
 import com.ktviv.pointpoker.domain.results.CreateSessionResult;
@@ -31,10 +26,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
 
 @RestController
 @RequestMapping("/api/sessions")
@@ -44,18 +37,13 @@ public class ServiceController {
 
     private final PointPokerService pointPokerService;
     private final AuthenticationFacade authenticationFacade;
-    private final SseEmitter sseEmitter;
-    private final ExecutorService executorService;
 
     @Autowired
-    public ServiceController(PointPokerService pointPokerService, AuthenticationFacade authenticationFacade, SseEmitter sseEmitter, ExecutorService executorService) {
+    public ServiceController(PointPokerService pointPokerService, AuthenticationFacade authenticationFacade) {
 
         this.pointPokerService = pointPokerService;
         this.authenticationFacade = authenticationFacade;
-        this.sseEmitter = sseEmitter;
-        this.executorService = executorService;
     }
-
 
     @PostMapping
     public ResponseEntity<?> createSession() throws UserNotAuthenticatedException {
@@ -88,37 +76,15 @@ public class ServiceController {
     @GetMapping(path = "/{sessionId}/vote", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter fetchVotesNew(@PathVariable String sessionId) throws UserNotAuthenticatedException, PokerSessionNotFoundException, UnAssociatedParticipantException {
 
-        final SseEmitter emitter = new SseEmitter(120000L);
-        emitter.onCompletion(() -> log.info("SseEmitter is completed for session {}", sessionId));
-        emitter.onTimeout(() -> log.info("SseEmitter is timed out for session {}", sessionId));
-        emitter.onError((ex) -> log.info(String.format("SseEmitter got error for session %s", sessionId), ex));
-        EventQueueBlock eventQueueBlock = this.pointPokerService.getSessionVotes(sessionId, getParticipant(getSessionUser()));
-        this.executorService.execute(() -> {
-            try {
-                while (eventQueueBlock.isActive()) {
-
-                    PokerEvent pokerEvent = eventQueueBlock.getEvents().take();
-                    if (pokerEvent instanceof UserVotedEvent) {
-
-                        emitter.send(UserVoteResponseMapper.from((UserVotedEvent) pokerEvent));
-                    } else if (pokerEvent instanceof VoteResetEvent) {
-
-                        emitter.send(UserVoteResponseMapper.from((VoteResetEvent) pokerEvent));
-                        emitter.complete();
-                        break;
-                    }
-                }
-            } catch (IOException | InterruptedException e) {
-
-                log.error("Error whilst emitting user-vote-events for sessionId {}", sessionId);
-                log.error("SSE Emitter failed to send events", e);
-                emitter.completeWithError(e);
-            }
-
-        });
-        return emitter;
+        return this.pointPokerService.broadcastEvents(sessionId, getParticipant(getSessionUser()));
     }
 
+    @PutMapping("/{sessionId}/exit")
+    public ResponseEntity<?> exitSession(@PathVariable String sessionId) throws UserNotAuthenticatedException, PokerSessionNotFoundException, UnAssociatedParticipantException {
+
+        pointPokerService.exitSession(sessionId, getParticipant(getSessionUser()));
+        return ResponseEntity.ok().build();
+    }
 
     private SessionUser getSessionUser() throws UserNotAuthenticatedException {
 
@@ -135,6 +101,4 @@ public class ServiceController {
 
         return Participant.of(sessionUser.getId(), sessionUser.getDisplayName(), Optional.of(storyPoint));
     }
-
-
 }
