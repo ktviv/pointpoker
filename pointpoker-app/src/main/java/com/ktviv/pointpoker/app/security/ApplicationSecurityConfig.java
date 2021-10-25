@@ -15,6 +15,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.Docket;
 
 import static com.ktviv.pointpoker.domain.entity.ApplicationUserRole.ADMIN;
 import static com.ktviv.pointpoker.domain.entity.ApplicationUserRole.PARTICIPANT;
@@ -44,6 +48,12 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter impl
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/", "index", "/css/*", "/js/*").permitAll()
+                .antMatchers("/v2/api-docs",
+                "/configuration/ui",
+                "/swagger-resources/**",
+                "/configuration/security",
+                "/swagger-ui.html",
+                "/webjars/**").permitAll()
                 .antMatchers("/api/**").hasAnyRole(PARTICIPANT.name(), ADMIN.name())
                 .anyRequest()
                 .authenticated()
@@ -78,4 +88,5 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter impl
 
         return new LoggerListener();
     }
+
 }

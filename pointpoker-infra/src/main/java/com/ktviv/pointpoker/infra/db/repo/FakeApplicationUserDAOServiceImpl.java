@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.ktviv.pointpoker.domain.entity.ApplicationUserRole.ADMIN;
 import static com.ktviv.pointpoker.domain.entity.ApplicationUserRole.PARTICIPANT;
 
 @Repository("fake")
@@ -62,6 +63,28 @@ public class FakeApplicationUserDAOServiceImpl implements ApplicationUserReposit
                         passwordEncoder.encode("edith@123"),
                         "edith@gmail.com",
                         PARTICIPANT.getGrantedAuthorities(),
+                        true,
+                        true,
+                        true,
+                        true
+                ),
+                new ApplicationUser(
+                        UUID.randomUUID().toString(),
+                        "test_user",
+                        passwordEncoder.encode("test_user@123"),
+                        "test_user@gmail.com",
+                        ADMIN.getGrantedAuthorities(),
+                        true,
+                        true,
+                        true,
+                        true
+                ),
+                new ApplicationUser(
+                        UUID.randomUUID().toString(),
+                        "test_user2",
+                        passwordEncoder.encode("test_user2@123"),
+                        "test_user2@gmail.com",
+                        ADMIN.getGrantedAuthorities(),
                         true,
                         true,
                         true,
